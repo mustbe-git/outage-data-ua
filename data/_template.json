@@ -1,9 +1,8 @@
 {
   "regionId": "<machine-readable-id>",
-  "regionName": "<localized human name>",
-  "regionType": "city|region|oblast|area",
   "lastUpdated": null,
-  "data": [],
+  "fact": null,
+  "preset": null,
   "lastUpdateStatus": {
     "status": "idle",
     "ok": true,
@@ -14,18 +13,6 @@
   },
   "meta": {
     "schemaVersion": "1.0.0",
-    "fileCreated": null,
-    "timezone": "Europe/Kyiv",
-    "source": {
-      "type": "proxy",
-      "upstream": null,
-      "notes": "Set upstream URL or identifier of original data source when known"
-    },
-    "ttlSeconds": 300,
-    "nextScheduledFetch": null,
-    "etag": null,
-    "contentHash": null,
-    "dataEmpty": true,
-    "dataEmptyReason": "initialized"
+    "contentHash": null
   }
 }

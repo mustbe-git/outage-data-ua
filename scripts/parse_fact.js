@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 /**
- * Extracts `DisconSchedule.fact = { ... }` from an HTML file, normalizes it,
- * and writes JSON to data/<region>.json according to data/_template.json shape.
+ * Extracts `DisconSchedule.fact = {...}` and `DisconSchedule.preset = {...}` from an HTML file
+ * and writes them verbatim to data/<region>.json with top-level `fact` and `preset` fields.
  *
  * Usage:
- *   node scripts/parse_fact.js --region <id> --in outputs/<region>.html --out data/<region>.json --upstream <url>
+ *   node scripts/parse_fact.js --region <id> --in outputs/<region>.html --out data/<region>.json [--pretty]
  *
  * Notes:
  * - The script is defensive: it never overwrites the output with invalid/empty data.
  * - It attempts JSON.parse first; if that fails (JS literal), it falls back to a safe eval via Function().
- * - Normalization: if the extracted object has a `data` field, it is used directly as `data`.
- *   Otherwise, the whole object is stored under `data` and flagged in meta.dataEmptyReason.
+ * - Output schema is defined by data/_template.json. Meta is minimal per requirements.
  */
 
 const fs = require('fs');
@@ -50,34 +49,35 @@ function sha256(data) {
   return crypto.createHash('sha256').update(data).digest('hex');
 }
 
-function extractFact(html) {
-  const marker = 'DisconSchedule.fact =';
+function extractDisconObject(html, key) {
+  const marker = `DisconSchedule.${key} =`;
   const idx = html.indexOf(marker);
   if (idx === -1) {
-    return { error: 'Marker `DisconSchedule.fact =` not found' };
+    return { error: `Marker \`DisconSchedule.${key} =\` not found` };
   }
   let i = idx + marker.length;
   // Skip whitespace
   while (i < html.length && /\s/.test(html[i])) i++;
-  if (html[i] !== '{') {
-    return { error: 'Expected `{` after `DisconSchedule.fact =`' };
+  const opener = html[i];
+  if (opener !== '{' && opener !== '[') {
+    return { error: `Expected '{' or '[' after \`DisconSchedule.${key} =\`` };
   }
-  // Extract balanced braces
-  let depth = 0;
+  // Extract balanced braces/brackets, counting both types
+  let depthCurly = 0;
+  let depthSquare = 0;
   let start = i;
   for (; i < html.length; i++) {
     const ch = html[i];
-    if (ch === '{') depth++;
-    else if (ch === '}') {
-      depth--;
-      if (depth === 0) {
-        // Include this closing brace
-        const jsonLike = html.slice(start, i + 1);
-        return { jsonLike, startIndex: start, endIndex: i + 1 };
-      }
+    if (ch === '{') depthCurly++;
+    else if (ch === '}') depthCurly--;
+    else if (ch === '[') depthSquare++;
+    else if (ch === ']') depthSquare--;
+    if (depthCurly === 0 && depthSquare === 0) {
+      const jsonLike = html.slice(start, i + 1);
+      return { jsonLike, startIndex: start, endIndex: i + 1 };
     }
   }
-  return { error: 'Unbalanced braces while extracting fact object' };
+  return { error: `Unbalanced braces while extracting ${key} object` };
 }
 
 function tryParseObject(text) {
@@ -103,8 +103,7 @@ function loadExisting(file) {
   }
 }
 
-function loadTemplateBase(regionId, upstream) {
-  const now = isoNow();
+function loadTemplateBase(regionId) {
   let template = null;
   try {
     const tplPath = path.join(__dirname, '..', 'data', '_template.json');
@@ -113,38 +112,25 @@ function loadTemplateBase(regionId, upstream) {
     // Fallback minimal template if _template.json is unavailable
     template = {
       regionId: regionId || null,
-      regionName: null,
-      regionType: null,
       lastUpdated: null,
-      data: [],
+      fact: null,
+      preset: null,
       lastUpdateStatus: { status: 'idle', ok: true, code: null, message: null, at: null, attempt: 0 },
       meta: {
         schemaVersion: '1.0.0',
-        fileCreated: now,
-        timezone: 'Europe/Kyiv',
-        source: { type: 'proxy', upstream: upstream || null, notes: 'Initialized by parser' },
-        ttlSeconds: 300,
-        nextScheduledFetch: null,
-        etag: null,
-        contentHash: null,
-        dataEmpty: true,
-        dataEmptyReason: 'initialized'
+        contentHash: null
       }
     };
   }
-  // Apply regionId and upstream if provided
+  // Apply regionId if provided
   template.regionId = regionId || template.regionId || null;
-  if (template.meta && template.meta.source) {
-    template.meta.source.upstream = upstream || template.meta.source.upstream || null;
-  }
-  if (template.meta && !template.meta.fileCreated) template.meta.fileCreated = now;
   return template;
 }
 
-function updateStatusOnError(existingObj, regionId, upstream, code, message) {
+function updateStatusOnError(existingObj, regionId, _upstream, code, message) {
   const now = isoNow();
-  const base = existingObj || loadTemplateBase(regionId, upstream);
-  // preserve data and lastUpdated as-is; only update status/meta fields
+  const base = existingObj || loadTemplateBase(regionId);
+  // preserve fact/preset and lastUpdated as-is; only update status/meta fields
   const prevAttempt = (base.lastUpdateStatus && typeof base.lastUpdateStatus.attempt === 'number') ? base.lastUpdateStatus.attempt : 0;
   base.lastUpdateStatus = {
     status: 'error',
@@ -154,13 +140,9 @@ function updateStatusOnError(existingObj, regionId, upstream, code, message) {
     at: now,
     attempt: prevAttempt + 1,
   };
-  if (base.meta) {
-    if (!base.meta.fileCreated) base.meta.fileCreated = now;
-    if (upstream) {
-      base.meta.source = base.meta.source || { type: 'proxy' };
-      base.meta.source.upstream = upstream;
-    }
-    // keep existing contentHash/dataEmpty untouched on errors
+  // meta remains minimal per new schema
+  if (base.meta && typeof base.meta === 'object') {
+    base.meta.schemaVersion = base.meta.schemaVersion || '1.0.0';
   }
   return base;
 }
@@ -250,34 +232,13 @@ function extractGroupsWithIso(data) {
   return Object.keys(out).length ? out : null;
 }
 
-function normalize(regionId, upstream, rawObj) {
+function buildOutput(regionId, factObj, presetObj) {
   const now = isoNow();
-  const dataField = Object.prototype.hasOwnProperty.call(rawObj, 'data') ? rawObj.data : undefined;
-  let dataOut = null;
-  let dataEmpty = false;
-  let dataEmptyReason = null;
-
-  if (dataField !== undefined && dataField !== null) {
-    // Try to return only per-group data with ISO timestamps for Europe/Kyiv
-    const groups = extractGroupsWithIso(dataField);
-    if (groups) {
-      dataOut = groups;
-    } else {
-      dataOut = dataField; // fallback: store as-is
-      dataEmptyReason = 'stored-as-is-unrecognized-structure';
-    }
-  } else {
-    dataOut = rawObj; // fallback: store full object
-    dataEmpty = false; // still has content
-    dataEmptyReason = 'no-data-field-present';
-  }
-
   return {
     regionId,
-    regionName: null,
-    regionType: null,
     lastUpdated: now,
-    data: dataOut,
+    fact: factObj,
+    preset: presetObj,
     lastUpdateStatus: {
       status: 'parsed',
       ok: true,
@@ -288,20 +249,7 @@ function normalize(regionId, upstream, rawObj) {
     },
     meta: {
       schemaVersion: '1.0.0',
-      fileCreated: now,
-      timezone: 'Europe/Kyiv',
-      source: {
-        type: 'proxy',
-        upstream: upstream || null,
-        notes: 'Extracted from DisconSchedule.fact in upstream HTML',
-      },
-      ttlSeconds: 300,
-      nextScheduledFetch: null,
-      etag: null,
       contentHash: null,
-      dataEmpty,
-      dataEmptyReason,
-      rawFactIncluded: dataField === undefined, // true if full raw fact used
     },
   };
 }
@@ -321,47 +269,58 @@ function main() {
   }
 
   const regionId = args.region;
-  const upstream = args.upstream || null;
 
   if (!fs.existsSync(args.input)) {
     console.error(`[WARN] Input not found: ${args.input}`);
     const existing = loadExisting(args.output);
-    const errObj = updateStatusOnError(existing, regionId, upstream, 404, `Input not found: ${args.input}`);
+    const errObj = updateStatusOnError(existing, regionId, null, 404, `Input not found: ${args.input}`);
     const jsonText = args.pretty ? JSON.stringify(errObj, null, 2) : JSON.stringify(errObj);
     writeFileAtomic(args.output, jsonText);
     process.exit(0); // skip gracefully
   }
 
   const html = readFile(args.input);
-  const ext = extractFact(html);
-  if (ext.error) {
-    console.error('[WARN] ' + ext.error + ` in ${args.input}`);
+  const factExt = extractDisconObject(html, 'fact');
+  if (factExt.error) {
+    console.error('[WARN] ' + factExt.error + ` in ${args.input}`);
     const existing = loadExisting(args.output);
-    const errObj = updateStatusOnError(existing, regionId, upstream, 422, ext.error + ` in ${args.input}`);
+    const errObj = updateStatusOnError(existing, regionId, null, 422, factExt.error + ` in ${args.input}`);
     const jsonText = args.pretty ? JSON.stringify(errObj, null, 2) : JSON.stringify(errObj);
     writeFileAtomic(args.output, jsonText);
     process.exit(0);
   }
 
-  const parsed = tryParseObject(ext.jsonLike);
-  if (parsed.error) {
-    console.error('[WARN] ' + parsed.error + ` in ${args.input}`);
+  const presetExt = extractDisconObject(html, 'preset');
+  // preset is optional; if missing, we'll leave it null.
+
+  const factParsed = tryParseObject(factExt.jsonLike);
+  if (factParsed.error) {
+    console.error('[WARN] ' + factParsed.error + ` in ${args.input}`);
     const existing = loadExisting(args.output);
-    const errObj = updateStatusOnError(existing, regionId, upstream, 422, parsed.error + ` in ${args.input}`);
+    const errObj = updateStatusOnError(existing, regionId, null, 422, factParsed.error + ` in ${args.input}`);
     const jsonText = args.pretty ? JSON.stringify(errObj, null, 2) : JSON.stringify(errObj);
     writeFileAtomic(args.output, jsonText);
     process.exit(0);
+  }
+
+  let presetParsed = null;
+  if (!presetExt.error) {
+    const pp = tryParseObject(presetExt.jsonLike);
+    if (pp.error) {
+      console.error('[WARN] ' + pp.error + ` (preset) in ${args.input}`);
+      // If preset failed to parse, proceed with null but record error status
+      presetParsed = null;
+    } else {
+      presetParsed = pp.value;
+    }
   }
 
   const now = isoNow();
 
-  let outObj = normalize(regionId, upstream, parsed.value);
+  let outObj = buildOutput(regionId, factParsed.value, presetParsed);
 
-  // Merge with existing to preserve fileCreated and increment attempts
+  // Merge with existing to increment attempts
   const existing = loadExisting(args.output);
-  if (existing && existing.meta) {
-    outObj.meta.fileCreated = existing.meta.fileCreated || outObj.meta.fileCreated;
-  }
   const prevAttempt = (existing && existing.lastUpdateStatus && typeof existing.lastUpdateStatus.attempt === 'number') ? existing.lastUpdateStatus.attempt : 0;
   outObj.lastUpdateStatus = {
     status: 'parsed',
@@ -372,17 +331,14 @@ function main() {
     attempt: prevAttempt + 1,
   };
 
-  // Compute content hash based on the extracted JSON text
-  const hash = sha256(ext.jsonLike);
+  // Compute content hash based on the extracted JSON text of fact + preset (if any)
+  const hashInput = factExt.jsonLike + '|' + (presetExt.error ? '' : presetExt.jsonLike);
+  const hash = sha256(hashInput);
   outObj.meta.contentHash = hash;
-  outObj.meta.dataEmpty = !outObj.data || (Array.isArray(outObj.data) ? outObj.data.length === 0 : Object.keys(outObj.data).length === 0);
-  if (outObj.meta.dataEmpty && !outObj.meta.dataEmptyReason) {
-    outObj.meta.dataEmptyReason = 'empty-data-after-parse';
-  }
 
   const jsonText = args.pretty ? JSON.stringify(outObj, null, 2) : JSON.stringify(outObj);
   writeFileAtomic(args.output, jsonText);
-  console.log(`[OK] Parsed ${args.region} → ${args.output} (method=${parsed.method}, bytes=${jsonText.length})`);
+  console.log(`[OK] Parsed ${args.region} → ${args.output} (factMethod=${factParsed.method}${presetParsed ? `, presetMethod=${presetExt.error ? 'n/a' : (tryParseObject.name && 'parsed')}` : ''}, bytes=${jsonText.length})`);
 }
 
 if (require.main === module) {
