@@ -1,6 +1,6 @@
 {
   "regionId": "dnipro",
-  "lastUpdated": "2025-11-06T15:07:38.845Z",
+  "lastUpdated": "2025-11-06T15:50:39.692Z",
   "fact": {
     "data": {
       "1762380000": {
@@ -3012,12 +3012,12 @@
     "updateFact": "06.11.2025 09:57"
   },
   "lastUpdateStatus": {
-    "status": "error",
-    "ok": false,
-    "code": 422,
-    "message": "Marker `DisconSchedule.fact =` not found in outputs/dnipro.html",
-    "at": "2025-11-06T15:39:47.115Z",
-    "attempt": 32
+    "status": "parsed",
+    "ok": true,
+    "code": 200,
+    "message": null,
+    "at": "2025-11-06T15:50:39.692Z",
+    "attempt": 33
   },
   "meta": {
     "schemaVersion": "1.0.0",
