@@ -3,6 +3,7 @@
 //   node scripts/render_png.mjs --json data/kyiv-region.json --gpv GPV1.2 --out images/kyiv-region/gpv-1-2.png
 //   node scripts/render_png.mjs --json data/odesa.json --gpv GPV3.1 --html scripts/full-template.html --out images/odesa/gpv-3-1.png
 //   node scripts/render_png.mjs --theme dark --scale 2            # optional dark theme and higher DPR
+//   node scripts/render_png.mjs --max                             # render at maximum quality (DPR=4 unless --scale provided)
 //
 // Requirements:
 //   Node.js 18+
@@ -47,7 +48,17 @@ const jsonPath = path.resolve(args.json || 'data/kyiv-region.json');
 const outPath = path.resolve(args.out || 'images/kyiv-region/gpv-1-2.png');
 const gpvKey = args.gpv || null; // e.g., GPV1.2
 const theme = (args.theme === 'dark') ? 'dark' : 'light';
-const deviceScaleFactor = Number(args.scale || 1);
+// Determine desired device scale factor (DPR). If --scale provided, use it. If --max or --quality max provided, use 4.
+let deviceScaleFactor = Number(args.scale || NaN);
+if (!Number.isFinite(deviceScaleFactor) || deviceScaleFactor <= 0) {
+  if (args.max === true || String(args.quality || '').toLowerCase() === 'max') {
+    deviceScaleFactor = 4; // maximum crispness, larger files
+  } else {
+    deviceScaleFactor = 4; // default to high quality by default
+  }
+}
+// Cap to a reasonable upper bound to avoid extreme memory usage in CI
+if (deviceScaleFactor > 4) deviceScaleFactor = 4;
 const timeoutMs = Number(args.timeout || 30000);
 
 async function ensureExists(p) {

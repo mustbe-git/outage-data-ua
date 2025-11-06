@@ -29,7 +29,8 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv);
 const theme = (args.theme === 'dark') ? 'dark' : 'light';
-const scale = Number(args.scale || 1);
+// Accept explicit --scale; otherwise rely on single renderer's high-DPI default (DPR=4). Support --max passthrough.
+const scale = Number(args.scale || NaN);
 const onlyRegion = args.region || null; // regionId or file stem
 
 const dataDir = path.join(projectRoot, 'data');
@@ -60,7 +61,14 @@ async function runRenderer({ jsonPath, gpvKey, outPath }) {
   return new Promise((resolve) => {
     const args = [rendererScript, '--html', templateHtml, '--json', jsonPath, '--gpv', gpvKey, '--out', outPath];
     if (theme === 'dark') { args.push('--theme', 'dark'); }
-    if (scale && scale !== 1) { args.push('--scale', String(scale)); }
+    if (Number.isFinite(scale) && scale > 0) {
+      args.push('--scale', String(scale));
+    } else {
+      // No explicit scale provided for batch — allow explicit max-quality passthrough
+      if (args.max === true || String(args.quality || '').toLowerCase() === 'max') {
+        args.push('--max');
+      }
+    }
 
     const child = spawn(process.execPath, args, { stdio: 'inherit' });
     child.on('exit', (code) => {

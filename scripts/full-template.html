@@ -10,6 +10,7 @@
       --panel: #ffffff;
       --text: #0e1624;
       --muted: #6b7785;
+      --hash: rgba(14, 22, 36, 0.08);
       --grid: #e2e8f0;
       --grid-strong: #cbd5e1;
       --accent: #0b6bcb;
@@ -26,6 +27,7 @@
       --panel: #121621;
       --text: #e8ecf1;
       --muted: #9aa7b2;
+      --hash: rgba(231, 234, 239, 0.16);
       --grid: #2a3242;
       --grid-strong: #3a4458;
       --accent: #5bbcff;
@@ -40,8 +42,25 @@
       font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Inter, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
     .container { display: inline-block; margin: 0 auto; padding: 24px; }
-    h1 { font-size: 20px; font-weight: 600; margin: 0 0 16px; letter-spacing: 0.2px; }
-    .panel { background: var(--panel); width: 815px; }
+    h1 { font-size: 20px; font-weight: 600; margin: 0 0 16px; letter-spacing: 0.2px; display: flex; align-items: center; gap: 10px; }
+    /* Right-aligned yellow group badge shown next to the first title */
+    .group-badge {
+      margin-left: auto;
+      background: #ffd666; /* warm yellow */
+      color: #000; /* black text as requested */
+      border-radius: 17px;
+      padding: 0 15px;
+      height: 35px;
+      line-height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 400;
+      border: 1px solid #e3b617; /* subtle outline for contrast on both themes */
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.02) inset;
+    }
+    .panel { background: var(--panel); width: 835px; }
     .table-wrap { overflow: auto; margin-bottom: 24px; border-radius: 10px; }
     table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
     th, td { border-right: 1px solid var(--grid); border-bottom: 1px solid var(--grid); padding: 0; text-align: center; white-space: nowrap; font-size: 12px; }
@@ -58,6 +77,7 @@
     tbody tr:last-child th { border-bottom-left-radius: 10px; }
     tbody tr:last-child td:last-child { border-bottom-right-radius: 10px; }
     .muted { color: var(--muted); font-weight: 100; font-size: 10px; }
+    .hash { color: var(--hash); font-weight: 100; font-size: 10px; }
 
     /* Rotate header time labels (first row, starting from the second cell) */
     thead th:not(:first-child) > .vlabel {
@@ -82,7 +102,7 @@
     }
     tbody th {
       height: 38px;
-      max-width: 92px;
+      max-width: 105px;
       min-width: 70px;
       white-space: nowrap;
       overflow: hidden;
@@ -93,8 +113,12 @@
     tbody td.state-yes { background: white; }
     tbody td.state-no { background: var(--maybe-bg); }
     tbody td.state-maybe { background: var(--maybe-bg); }
-    tbody td.state-mfirst { background: linear-gradient(90deg, var(--maybe-bg) 0 50%, white 50% 100%); }
-    tbody td.state-msecond { background: linear-gradient(90deg, white 0 50%, var(--maybe-bg) 50% 100%); }
+    tbody td.state-mfirst, tbody td.state-first { background: linear-gradient(90deg, var(--maybe-bg) 0 50%, white 50% 100%); }
+    tbody td.state-msecond, tbody td.state-second { background: linear-gradient(90deg, white 0 50%, var(--maybe-bg) 50% 100%); }
+
+    /* Center icons inside cells and fix their size */
+    tbody td { text-align: center; }
+    tbody td .cell-icon { width: 20px; height: 20px; display: inline-block; margin-top: 3px; }
 
     /* Weekly matrix: highlight today's row */
     #matrix tbody tr.is-today { border-top-color: var(--today-border) !important;}
@@ -105,9 +129,11 @@
     /* Legend */
     .legend { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; margin: 12px 0 0; }
     .legend-item { display: inline-flex; align-items: center; font-size: 10px; }
-    .legend-box { width: 30px; height: 38px; border: 1px solid var(--grid); box-sizing: border-box; margin-right: 8px; }
+    .legend-box { width: 30px; height: 38px; border: 1px solid var(--grid); box-sizing: border-box; margin-right: 8px; display: flex; align-items: center; justify-content: center; }
+    .legend-box .cell-icon { width: 20px; height: 20px; display: block; }
     /* Use same coloring as matrix states */
     .legend-box.state-yes { background: white; }
+    .legend-box.state-no { background: var(--maybe-bg); }
     .legend-box.state-maybe { background: var(--maybe-bg); }
     .legend-box.state-mfirst { background: linear-gradient(90deg, var(--maybe-bg) 0 50%, white 50% 100%); }
     .legend-box.state-msecond { background: linear-gradient(90deg, white 0 50%, var(--maybe-bg) 50% 100%); }
@@ -125,12 +151,13 @@
       <table id="matrix"></table>
     </div>
     <div class="legend" aria-label="Легенда">
-      <div class="legend-item"><span class="legend-box state-yes" title="Світло є"></span> — Світло є</div>
-      <div class="legend-item"><span class="legend-box state-maybe" title="Можливо відключення"></span> — Можливо відключення</div>
-      <div class="legend-item"><span class="legend-box state-mfirst" title="Світла можливо не буде перші 30 хв."></span> — Світла можливо не буде перші 30 хв.</div>
-      <div class="legend-item"><span class="legend-box state-msecond" title="Світла можливо не буде другі 30 хв"></span> — Світла можливо не буде другі 30 хв</div>
+      <div class="legend-item"><span class="legend-box state-yes" title="Світло є"></span> Світло є</div>
+      <div class="legend-item"><span class="legend-box state-no" title="Світла нема"><img class="cell-icon" src="icons/no.svg" width="20" height="20" alt="" aria-hidden="true"></span> Світла нема</div>
+      <div class="legend-item"><span class="legend-box state-maybe" title="Можливо відключення"><img class="cell-icon" src="icons/maybe.svg" width="20" height="20" alt="" aria-hidden="true"></span> Можливо відключення</div>
+      <div class="legend-item"><span class="legend-box state-mfirst" title="Світла можливо не буде перші 30 хв"><img class="cell-icon" src="icons/mfirst.svg" width="20" height="20" alt="" aria-hidden="true"></span> Перші 30 хв.</div>
+      <div class="legend-item"><span class="legend-box state-msecond" title="Світла можливо не буде другі 30 хв"><img class="cell-icon" src="icons/msecond.svg" width="20" height="20" alt="" aria-hidden="true"></span> Другі 30 хв.</div>
     </div>
-    <p class="muted" id="meta"></p>
+    <p class="muted hash" id="meta"></p>
   </div>
   <script>
     (function(){
@@ -150,6 +177,19 @@
       const keys = Object.keys(data?.preset?.data || {});
       const firstGpv = keys.find(k => /^GPV\d+\.\d+$/.test(k));
       return firstGpv || 'GPV1.2';
+    }
+
+    // Map cell state to icon file path (relative to scripts/full-template.html)
+    function stateIconSrc(state) {
+      switch (state) {
+        case 'no': return 'icons/no.svg';
+        case 'maybe': return 'icons/maybe.svg';
+        case 'mfirst':
+        case 'first': return 'icons/mfirst.svg';
+        case 'msecond':
+        case 'second': return 'icons/msecond.svg';
+        default: return null;
+      }
     }
 
     async function load() {
@@ -200,6 +240,31 @@
       } catch (_) {}
 
       const gpvKey = pickGpvKey(data);
+
+      // Inject group badge next to the first title (right-aligned)
+      try {
+        const h1 = document.querySelector('.container > h1');
+        if (h1) {
+          const names = data?.preset?.sch_names || {};
+          let label = names[gpvKey] || '';
+          if (label) {
+            // Convert "Черга 1.2" -> "Черга: 1.2"
+            label = label.replace(/^Черга\b\s*/, 'Черга: ');
+          } else if (gpvKey) {
+            const m = String(gpvKey).match(/^GPV(\d+)\.(\d+)$/);
+            if (m) label = `Черга: ${m[1]}.${m[2]}`;
+          }
+          if (label) {
+            let badge = h1.querySelector('.group-badge');
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = 'group-badge';
+              h1.appendChild(badge);
+            }
+            badge.textContent = label;
+          }
+        }
+      } catch (_) {}
 
       // Build top 25x2 table for today (from fact)
       buildToday(data.preset, data.fact, gpvKey);
@@ -291,6 +356,18 @@
             const timeLabel = preset.time_zone[String(hk)]?.[0] || '';
             const desc = preset.time_type?.[value] || value;
             td.title = dayName + ' ' + timeLabel + ' — ' + desc;
+            const iconSrc = stateIconSrc(value);
+            if (iconSrc) {
+              const img = document.createElement('img');
+              img.className = 'cell-icon';
+              img.src = iconSrc;
+              img.width = 20;
+              img.height = 20;
+              img.alt = '';
+              img.setAttribute('aria-hidden', 'true');
+              img.decoding = 'async';
+              td.appendChild(img);
+            }
           }
           tr.appendChild(td);
         });
@@ -325,28 +402,70 @@
       }
       thead.appendChild(hr);
 
-      // TBODY (single row for today)
+      // Helper to render a single row by day epoch key
+      function renderRow(label, dayEpoch) {
+        const tr = document.createElement('tr');
+        const rowTh = document.createElement('th');
+        rowTh.textContent = label;
+        tr.appendChild(rowTh);
+
+        const dayObj = fact && fact.data && (dayEpoch != null) && fact.data[String(dayEpoch)];
+        const schedule = dayObj && (dayObj[gpvKey]);
+
+        tzKeys.forEach(hk => {
+          const td = document.createElement('td');
+          const raw = schedule?.[String(hk)];
+          if (raw) td.classList.add('state-' + raw);
+          const timeLabel = preset.time_zone[String(hk)]?.[0] || '';
+          const desc = raw ? (preset.time_type?.[raw] || raw) : '';
+          if (desc) td.title = label + ' ' + timeLabel + ' — ' + desc;
+          const iconSrc = raw ? stateIconSrc(raw) : null;
+          if (iconSrc) {
+            const img = document.createElement('img');
+            img.className = 'cell-icon';
+            img.src = iconSrc;
+            img.width = 20;
+            img.height = 20;
+            img.alt = '';
+            img.setAttribute('aria-hidden', 'true');
+            img.decoding = 'async';
+            td.appendChild(img);
+          }
+          tr.appendChild(td);
+        });
+        return tr;
+      }
+
+      // TBODY (rows for today and tomorrow)
       const tbody = document.createElement('tbody');
-      const tr = document.createElement('tr');
-      const rowTh = document.createElement('th');
-      rowTh.textContent = 'Сьогодні';
-      tr.appendChild(rowTh);
 
-      const dayObj = fact && fact.data && (fact.today != null) && fact.data[String(fact.today)];
-      const schedule = dayObj && (dayObj[gpvKey]);
+      const todayEpoch = (fact && fact.today != null) ? Number(fact.today) : null;
+      if (todayEpoch != null) {
+        tbody.appendChild(renderRow('Сьогодні', todayEpoch));
+      }
 
-      tzKeys.forEach(hk => {
-        const td = document.createElement('td');
-        const raw = schedule?.[String(hk)];
-        if (raw === 'no') td.classList.add('state-no');
-        else if (raw === 'yes') td.classList.add('state-yes');
-        const timeLabel = preset.time_zone[String(hk)]?.[0] || '';
-        const typeKey = raw === 'no' ? 'no' : (raw === 'yes' ? 'yes' : undefined);
-        const desc = typeKey ? (preset.time_type?.[typeKey] || typeKey) : '';
-        if (desc) td.title = 'Сьогодні ' + timeLabel + ' — ' + desc;
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
+      // Pick another key from fact.data that does NOT equal fact.today (prefer the next chronological as "tomorrow")
+      let tomorrowEpoch = null;
+      try {
+        const keys = Object.keys(fact?.data || {}).map(Number).filter(n => !Number.isNaN(n));
+        if (keys.length) {
+          const greater = keys.filter(k => todayEpoch != null ? k > todayEpoch : true).sort((a,b)=>a-b);
+          tomorrowEpoch = greater[0] ?? keys.find(k => k !== todayEpoch) ?? null;
+        }
+      } catch (_) {}
+
+      if (tomorrowEpoch != null && tomorrowEpoch !== todayEpoch) {
+        let label = 'Завтра';
+        try {
+          const d = new Date(Number(tomorrowEpoch) * 1000);
+          const parts = new Intl.DateTimeFormat('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: '2-digit' }).formatToParts(d);
+          const get = t => parts.find(p => p.type === t)?.value || '';
+          const dd = get('day');
+          const mm = get('month');
+          if (dd && mm) label = `Завтра (${dd}.${mm})`;
+        } catch (_) {}
+        tbody.appendChild(renderRow(label, tomorrowEpoch));
+      }
 
       table.appendChild(thead);
       table.appendChild(tbody);
