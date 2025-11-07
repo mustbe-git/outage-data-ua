@@ -1,0 +1,31 @@
+{
+  "name": "outage-data-ua",
+  "version": "1.0.0",
+  "description": "Публічне сховище та інструменти для автоматичного збирання, парсингу, візуалізації (HTML) і генерації PNG‑зображень графіків планових/аварійних відключень електроенергії в Україні.",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Baskerville42/outage-data-ua.git"
+  },
+  "homepage": "https://github.com/Baskerville42/outage-data-ua",
+  "bugs": {
+    "url": "https://github.com/Baskerville42/outage-data-ua/issues"
+  },
+  "author": "Alexander Tartmin <alexander@tartmin.name> (https://github.com/Baskerville42/)",
+  "contributors": [
+    "Alexander Tartmin"
+  ],
+  "scripts": {
+    "fetch": "node scripts/fetch_regions_playwright.mjs",
+    "parse": "node scripts/batch_parse.mjs",
+    "render": "node scripts/batch_render.mjs"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
