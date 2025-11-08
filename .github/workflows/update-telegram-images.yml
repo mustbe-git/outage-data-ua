@@ -70,12 +70,26 @@ jobs:
             return caption ? `${caption}\nОновлено: ${ts}` : `Оновлено: ${ts}`;
           }
 
+          // Додаємо cache-busting параметр cb=timestamp до URL
+          function cacheBustedUrl(url) {
+            try {
+              const ts = Date.now();
+              const u = new URL(url);
+              u.searchParams.set('cb', ts.toString());
+              return u.toString();
+            } catch (e) {
+              const sep = url.includes('?') ? '&' : '?';
+              return `${url}${sep}cb=${Date.now()}`;
+            }
+          }
+
           async function sendPhoto(chat) {
             const url = `${API_BASE}/sendPhoto`;
             const caption = withTimestamp(chat.caption);
+            const photoUrl = cacheBustedUrl(chat.image_url);
             const body = {
               chat_id: chat.chat_id,
-              photo: chat.image_url,
+              photo: photoUrl,
               caption
             };
             try {
@@ -101,12 +115,13 @@ jobs:
           async function editPhoto(chat) {
             const url = `${API_BASE}/editMessageMedia`;
             const caption = withTimestamp(chat.caption);
+            const photoUrl = cacheBustedUrl(chat.image_url);
             const payload = {
               chat_id: chat.chat_id,
               message_id: Number(chat.message_id),
               media: {
                 type: "photo",
-                media: chat.image_url,
+                media: photoUrl,
                 caption
               }
             };
