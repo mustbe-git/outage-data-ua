@@ -20,7 +20,7 @@ jobs:
       - name: Run Telegram update script
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHATS_JSON: ${{ secrets.CHATS_JSON }}
+          CHATS_JSON: ${{ vars.CHATS_JSON }}
         run: |
           cat > update-telegram.js <<'EOF'
           // update-telegram.js
