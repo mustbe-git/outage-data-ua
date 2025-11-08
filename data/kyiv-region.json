@@ -1,6 +1,6 @@
 {
   "regionId": "kyiv-region",
-  "lastUpdated": "2025-11-08T17:06:10.017Z",
+  "lastUpdated": "2025-11-08T17:50:44.390Z",
   "fact": {
     "data": {
       "1762552800": {
@@ -51,7 +51,7 @@
           "18": "no",
           "19": "no",
           "20": "no",
-          "21": "no",
+          "21": "yes",
           "22": "yes",
           "23": "yes",
           "24": "yes"
@@ -130,9 +130,9 @@
           "19": "no",
           "20": "no",
           "21": "no",
-          "22": "no",
-          "23": "no",
-          "24": "no"
+          "22": "yes",
+          "23": "yes",
+          "24": "yes"
         },
         "GPV3.2": {
           "1": "yes",
@@ -432,8 +432,8 @@
           "7": "no",
           "8": "first",
           "9": "yes",
-          "10": "yes",
-          "11": "yes",
+          "10": "no",
+          "11": "no",
           "12": "yes",
           "13": "yes",
           "14": "yes",
@@ -441,10 +441,10 @@
           "16": "no",
           "17": "no",
           "18": "no",
-          "19": "no",
-          "20": "no",
-          "21": "no",
-          "22": "first",
+          "19": "yes",
+          "20": "yes",
+          "21": "yes",
+          "22": "yes",
           "23": "yes",
           "24": "yes"
         },
@@ -458,6 +458,32 @@
           "7": "no",
           "8": "first",
           "9": "yes",
+          "10": "no",
+          "11": "no",
+          "12": "yes",
+          "13": "yes",
+          "14": "yes",
+          "15": "second",
+          "16": "no",
+          "17": "no",
+          "18": "no",
+          "19": "yes",
+          "20": "yes",
+          "21": "yes",
+          "22": "yes",
+          "23": "yes",
+          "24": "yes"
+        },
+        "GPV4.1": {
+          "1": "yes",
+          "2": "yes",
+          "3": "yes",
+          "4": "yes",
+          "5": "no",
+          "6": "no",
+          "7": "no",
+          "8": "first",
+          "9": "yes",
           "10": "yes",
           "11": "yes",
           "12": "yes",
@@ -474,32 +500,6 @@
           "23": "yes",
           "24": "yes"
         },
-        "GPV4.1": {
-          "1": "yes",
-          "2": "yes",
-          "3": "yes",
-          "4": "yes",
-          "5": "no",
-          "6": "no",
-          "7": "no",
-          "8": "first",
-          "9": "yes",
-          "10": "no",
-          "11": "no",
-          "12": "yes",
-          "13": "yes",
-          "14": "yes",
-          "15": "second",
-          "16": "no",
-          "17": "no",
-          "18": "no",
-          "19": "yes",
-          "20": "yes",
-          "21": "yes",
-          "22": "yes",
-          "23": "yes",
-          "24": "yes"
-        },
         "GPV4.2": {
           "1": "yes",
           "2": "yes",
@@ -510,8 +510,8 @@
           "7": "no",
           "8": "first",
           "9": "yes",
-          "10": "no",
-          "11": "no",
+          "10": "yes",
+          "11": "yes",
           "12": "yes",
           "13": "yes",
           "14": "yes",
@@ -519,10 +519,10 @@
           "16": "no",
           "17": "no",
           "18": "no",
-          "19": "yes",
-          "20": "yes",
-          "21": "yes",
-          "22": "yes",
+          "19": "no",
+          "20": "no",
+          "21": "no",
+          "22": "first",
           "23": "yes",
           "24": "yes"
         },
@@ -632,7 +632,7 @@
         }
       }
     },
-    "update": "08.11.2025 18:21",
+    "update": "08.11.2025 19:42",
     "today": 1762552800
   },
   "preset": {
@@ -3009,18 +3009,18 @@
         }
       }
     },
-    "updateFact": "08.11.2025 18:21"
+    "updateFact": "08.11.2025 19:42"
   },
   "lastUpdateStatus": {
-    "status": "error",
-    "ok": false,
-    "code": 422,
-    "message": "Marker `DisconSchedule.fact =` not found in /home/runner/work/outage-data-ua/outage-data-ua/outputs/kyiv-region.html",
-    "at": "2025-11-08T17:36:40.882Z",
-    "attempt": 212
+    "status": "parsed",
+    "ok": true,
+    "code": 200,
+    "message": null,
+    "at": "2025-11-08T17:50:44.390Z",
+    "attempt": 213
   },
   "meta": {
     "schemaVersion": "1.0.0",
-    "contentHash": "b75fdb06e8e034bf7c37cdd9cfaa23a408b95da1e16ecb67cb22436eb4933f14"
+    "contentHash": "f0034e4db1a92b2910b0b8eed59764b6f48b07d2b09ab3ced8ea9040146db6f9"
   }
 }
