@@ -1,6 +1,6 @@
 {
   "regionId": "dnipro",
-  "lastUpdated": "2025-11-09T16:07:01.493Z",
+  "lastUpdated": "2025-11-09T16:40:24.175Z",
   "fact": {
     "data": {
       "1762639200": {
@@ -179,9 +179,9 @@
           "16": "no",
           "17": "no",
           "18": "no",
-          "19": "no",
-          "20": "no",
-          "21": "no",
+          "19": "first",
+          "20": "yes",
+          "21": "yes",
           "22": "yes",
           "23": "yes",
           "24": "yes"
@@ -286,7 +286,7 @@
           "19": "no",
           "20": "no",
           "21": "no",
-          "22": "no",
+          "22": "yes",
           "23": "yes",
           "24": "yes"
         },
@@ -632,7 +632,7 @@
         }
       }
     },
-    "update": "09.11.2025 16:57",
+    "update": "09.11.2025 18:30",
     "today": 1762639200
   },
   "preset": {
@@ -3009,18 +3009,18 @@
         }
       }
     },
-    "updateFact": "09.11.2025 16:57"
+    "updateFact": "09.11.2025 18:30"
   },
   "lastUpdateStatus": {
-    "status": "error",
-    "ok": false,
-    "code": 422,
-    "message": "Marker `DisconSchedule.fact =` not found in /home/runner/work/outage-data-ua/outage-data-ua/outputs/dnipro.html",
-    "at": "2025-11-09T16:25:55.743Z",
-    "attempt": 294
+    "status": "parsed",
+    "ok": true,
+    "code": 200,
+    "message": null,
+    "at": "2025-11-09T16:40:24.174Z",
+    "attempt": 295
   },
   "meta": {
     "schemaVersion": "1.0.0",
-    "contentHash": "d63a5e3e71a5947553947f2bd6610f559b4009c0b1b00221a38676a8cbc48eba"
+    "contentHash": "6d0b873d6f8c32ed4aacfb906451466a9450e3f07beabc40951da387f5d78d20"
   }
 }
