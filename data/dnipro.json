@@ -3012,12 +3012,12 @@
     "updateFact": "09.11.2025 16:57"
   },
   "lastUpdateStatus": {
-    "status": "parsed",
-    "ok": true,
-    "code": 200,
-    "message": null,
-    "at": "2025-11-09T15:06:39.426Z",
-    "attempt": 289
+    "status": "error",
+    "ok": false,
+    "code": 422,
+    "message": "Marker `DisconSchedule.fact =` not found in /home/runner/work/outage-data-ua/outage-data-ua/outputs/dnipro.html",
+    "at": "2025-11-09T15:24:57.345Z",
+    "attempt": 290
   },
   "meta": {
     "schemaVersion": "1.0.0",
