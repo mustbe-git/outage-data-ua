@@ -1,7 +1,6 @@
 {
   "regionId": "odesa",
-  "regionAffiliation": "Київська обл.",
-  "lastUpdated": "2025-11-09T19:58:28.790Z",
+  "lastUpdated": "2025-11-09T20:02:30.480Z",
   "fact": {
     "data": {
       "1762639200": {
@@ -3035,11 +3034,12 @@
     "ok": true,
     "code": 200,
     "message": null,
-    "at": "2025-11-09T19:58:28.789Z",
-    "attempt": 309
+    "at": "2025-11-09T20:02:30.480Z",
+    "attempt": 310
   },
   "meta": {
     "schemaVersion": "1.0.0",
     "contentHash": "251b4682ce46cfd96cf2a509981d07f6b3e58260b40660e4762c09f34a3f97b0"
-  }
+  },
+  "regionAffiliation": "Київська обл."
 }

@@ -1,7 +1,6 @@
 {
   "regionId": "kyiv-region",
-  "regionAffiliation": "Київська обл.",
-  "lastUpdated": "2025-11-09T19:58:28.738Z",
+  "lastUpdated": "2025-11-09T20:02:30.432Z",
   "fact": {
     "data": {
       "1762639200": {
@@ -3017,11 +3016,12 @@
     "ok": true,
     "code": 200,
     "message": null,
-    "at": "2025-11-09T19:58:28.737Z",
-    "attempt": 309
+    "at": "2025-11-09T20:02:30.432Z",
+    "attempt": 310
   },
   "meta": {
     "schemaVersion": "1.0.0",
     "contentHash": "41ef29f707725ef09468c17be0836758292923b6a66ee6e79fb8b1e010d13e7d"
-  }
+  },
+  "regionAffiliation": "Київська обл."
 }
