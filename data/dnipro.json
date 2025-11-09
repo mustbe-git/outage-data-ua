@@ -1,6 +1,6 @@
 {
   "regionId": "dnipro",
-  "lastUpdated": "2025-11-09T06:08:39.126Z",
+  "lastUpdated": "2025-11-09T07:06:55.244Z",
   "fact": {
     "data": {
       "1762639200": {
@@ -71,10 +71,10 @@
           "12": "no",
           "13": "no",
           "14": "no",
-          "15": "no",
-          "16": "no",
-          "17": "no",
-          "18": "first",
+          "15": "yes",
+          "16": "yes",
+          "17": "yes",
+          "18": "yes",
           "19": "yes",
           "20": "yes",
           "21": "yes",
@@ -126,10 +126,10 @@
           "15": "no",
           "16": "no",
           "17": "no",
-          "18": "no",
-          "19": "no",
-          "20": "no",
-          "21": "no",
+          "18": "first",
+          "19": "yes",
+          "20": "yes",
+          "21": "yes",
           "22": "yes",
           "23": "yes",
           "24": "yes"
@@ -144,8 +144,8 @@
           "7": "no",
           "8": "yes",
           "9": "yes",
-          "10": "no",
-          "11": "first",
+          "10": "yes",
+          "11": "yes",
           "12": "yes",
           "13": "yes",
           "14": "yes",
@@ -260,7 +260,7 @@
           "19": "no",
           "20": "no",
           "21": "no",
-          "22": "no",
+          "22": "yes",
           "23": "yes",
           "24": "yes"
         },
@@ -301,10 +301,10 @@
           "8": "no",
           "9": "no",
           "10": "no",
-          "11": "no",
-          "12": "no",
-          "13": "no",
-          "14": "no",
+          "11": "first",
+          "12": "yes",
+          "13": "yes",
+          "14": "yes",
           "15": "yes",
           "16": "yes",
           "17": "yes",
@@ -632,7 +632,7 @@
         }
       }
     },
-    "update": "08.11.2025 22:03",
+    "update": "09.11.2025 09:00",
     "today": 1762639200
   },
   "preset": {
@@ -3009,18 +3009,18 @@
         }
       }
     },
-    "updateFact": "08.11.2025 22:03"
+    "updateFact": "09.11.2025 09:00"
   },
   "lastUpdateStatus": {
-    "status": "error",
-    "ok": false,
-    "code": 422,
-    "message": "Marker `DisconSchedule.fact =` not found in /home/runner/work/outage-data-ua/outage-data-ua/outputs/dnipro.html",
-    "at": "2025-11-09T06:52:20.773Z",
-    "attempt": 257
+    "status": "parsed",
+    "ok": true,
+    "code": 200,
+    "message": null,
+    "at": "2025-11-09T07:06:55.244Z",
+    "attempt": 258
   },
   "meta": {
     "schemaVersion": "1.0.0",
-    "contentHash": "67c11e1ac3d33888a46b733d337adfe1e6ededa01afefead92ed57e9e8c9bd10"
+    "contentHash": "67aefa1e9c94c15fe851c79237c3b411df67470fc5e4602a1b02530764e65807"
   }
 }
