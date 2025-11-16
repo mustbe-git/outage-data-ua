@@ -1,6 +1,6 @@
 {
   "regionId": "kyiv",
-  "lastUpdated": "2025-11-16T12:49:07.905Z",
+  "lastUpdated": "2025-11-16T13:11:48.027Z",
   "fact": {
     "data": {
       "1763244000": {
@@ -150,7 +150,7 @@
           "13": "yes",
           "14": "yes",
           "15": "yes",
-          "16": "yes",
+          "16": "no",
           "17": "no",
           "18": "no",
           "19": "no",
@@ -176,7 +176,7 @@
           "13": "yes",
           "14": "yes",
           "15": "yes",
-          "16": "yes",
+          "16": "no",
           "17": "no",
           "18": "no",
           "19": "no",
@@ -202,7 +202,7 @@
           "13": "yes",
           "14": "yes",
           "15": "yes",
-          "16": "yes",
+          "16": "no",
           "17": "no",
           "18": "no",
           "19": "no",
@@ -632,7 +632,7 @@
         }
       }
     },
-    "update": "16.11.2025 11:18",
+    "update": "16.11.2025 14:48",
     "today": 1763244000
   },
   "preset": {
@@ -3009,19 +3009,19 @@
         }
       }
     },
-    "updateFact": "16.11.2025 11:18"
+    "updateFact": "16.11.2025 14:48"
   },
   "lastUpdateStatus": {
     "status": "parsed",
     "ok": true,
     "code": 200,
     "message": null,
-    "at": "2025-11-16T12:49:07.904Z",
-    "attempt": 873
+    "at": "2025-11-16T13:11:48.027Z",
+    "attempt": 874
   },
   "meta": {
     "schemaVersion": "1.0.0",
-    "contentHash": "990221f3e0d84d01b8ccf8e7494a7e2aaadd05802928b2a2cbe76a4055fd00e3"
+    "contentHash": "d40c9cc4630700a56901b50e17aaa4d089deeeb7b02f8dfa8d887d6d44a51fa2"
   },
   "regionAffiliation": "м. Київ"
 }
