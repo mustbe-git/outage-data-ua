@@ -238,6 +238,9 @@ jobs:
           # Each artifact creates a folder like images/images-kyiv/
           # We need to move contents from images/images-{region}/ to images/{region}/
           
+          # Create temp directory outside of images/
+          mkdir -p /tmp/images-restructure
+          
           for artifact_dir in images/images-*; do
             if [ -d "$artifact_dir" ]; then
               # Extract region name from artifact directory name
@@ -247,13 +250,16 @@ jobs:
               echo "[INFO] Processing region: $region"
               echo "[INFO] Artifact dir: $artifact_dir"
               
-              # Move the region folder from artifact to images/
+              # Move the region folder from artifact to temp, then to final location
               # The artifact contains: images/images-kyiv/{region}/...
               # We need to move it to: images/{region}/...
               if [ -d "$artifact_dir/$region" ]; then
-                mv "$artifact_dir/$region" "images/$region-temp"
+                # First move to temp outside images/
+                mv "$artifact_dir/$region" "/tmp/images-restructure/$region"
+                # Remove artifact directory
                 rm -rf "$artifact_dir"
-                mv "images/$region-temp" "images/$region"
+                # Move from temp to final location
+                mv "/tmp/images-restructure/$region" "images/$region"
                 echo "[INFO] Moved $region images to images/$region/"
               else
                 echo "[WARN] Expected structure not found in $artifact_dir"
@@ -261,6 +267,9 @@ jobs:
               fi
             fi
           done
+          
+          # Cleanup temp directory
+          rm -rf /tmp/images-restructure
           
           echo "[INFO] Final image structure:"
           ls -la images/ || true
