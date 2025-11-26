@@ -156,32 +156,20 @@ jobs:
             exit 0
           fi
           
-          
           echo "[INFO] No data changes and no forced region. Skipping render."
-
-      - name: Cache pngquant
-        id: pngquant-cache
-        uses: actions/cache@v4
-        with:
-          path: /usr/bin/pngquant
-          key: ${{ runner.os }}-pngquant
-
-      - name: Install pngquant
-        if: steps.pngquant-cache.outputs.cache-hit != 'true'
-        run: sudo apt-get update && sudo apt-get install -y pngquant
 
       - name: Compress images with pngquant
         shell: bash
         run: |
           set -euo pipefail
-          # Find all PNGs in images/ and compress them in place
+          # Use pngquant from npm (cached via npm cache)
           # --force overwrites existing files
           # --ext .png ensures extension remains .png
           # --quality 65-80 sets quality range
           # --skip-if-larger skips if compression doesn't save space
           
           echo "[INFO] Compressing PNG images..."
-          find images -name "*.png" -print0 | xargs -0 -P 4 -I {} pngquant --force --ext .png --quality 65-80 --skip-if-larger "{}" || true
+          find images -name "*.png" -print0 | xargs -0 -P 4 -I {} npx pngquant-bin --force --ext .png --quality 65-80 --skip-if-larger "{}" || true
           echo "[INFO] Compression complete."
 
       - name: Commit and push data/images updates (if any)
