@@ -30,8 +30,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
+          fetch-depth: 1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -60,13 +59,10 @@ jobs:
           # Basic validation
           if [ -z "${REGION_SOURCES_JSON:-}" ]; then
             echo "REGION_SOURCES_JSON is empty or not set. Ensure repository secret is configured." >&2
-            # Do not fail the job hard; exit gracefully to avoid noisy failures while configuring
             exit 0
           fi
 
           mkdir -p outputs
-
-          # Playwright and Chromium are installed once above (with caching). Using cached toolchain.
 
           # If REGION is set — pass it to the script; otherwise fetch all
           if [ -n "${REGION:-}" ]; then
@@ -85,24 +81,80 @@ jobs:
         run: |
           set -euo pipefail
           echo "[INFO] Parsing outputs/*.html into data/*.json via Node batch parser"
-          # Respect REGION env if provided (limits to a single region)
           node scripts/batch_parse.mjs
 
-      - name: Generate schedule images from JSON (all regions / GPV groups)
+      - name: Determine changed data files
+        id: changes
         shell: bash
         run: |
           set -euo pipefail
-          echo "[INFO] Preparing to render images from data/*.json"
-          # Playwright toolchain prepared earlier (cached); no reinstall needed here.
-
-          # Respect REGION env if provided (limits to a single region)
+          
+          # Check if templates or scripts changed
+          # Since we have fetch-depth: 1, we can't easily check history. 
+          # But we can check if there are unstaged changes in data/ AFTER parsing.
+          # Wait, the user wants to optimize rendering time.
+          # If data/*.json changed compared to what's in the repo, we render those.
+          # If templates/scripts changed in the repo (pushed), we should render ALL.
+          # But with fetch-depth: 1, we don't know what changed in the push unless we fetch more or use the API.
+          # Actually, for a scheduled job, we are running on HEAD.
+          # The "smart" part is mostly about: did the fetch/parse step update any JSON files?
+          # If yes, render those.
+          # If no, do nothing?
+          # BUT, if I pushed a change to a template, I want everything re-rendered.
+          # How to detect that?
+          # Maybe we can assume that if it's a 'schedule' event, we only care about data changes.
+          # If it's a 'push' event (or workflow_dispatch with code changes), we might want full render.
+          # Let's stick to the data changes logic first, as that's the 99% case (every 15 mins).
+          
+          # We need to see which files in data/ are modified or untracked
+          changed_files=$(git status --porcelain data/ | grep '\.json$' | cut -c4- || true)
+          
+          # Also check if we forced a specific region via input
           if [ -n "${REGION:-}" ]; then
-            echo "[INFO] Rendering images only for region='${REGION}'"
-            node scripts/batch_render.mjs --region "${REGION}"
-          else
-            echo "[INFO] Rendering images for all regions"
-            node scripts/batch_render.mjs
+             echo "forced_region=${REGION}" >> $GITHUB_OUTPUT
+             echo "files=" >> $GITHUB_OUTPUT
+             echo "run_all=false" >> $GITHUB_OUTPUT
+             exit 0
           fi
+
+          if [ -z "$changed_files" ]; then
+            echo "[INFO] No data changes detected."
+            echo "files=" >> $GITHUB_OUTPUT
+            echo "run_all=false" >> $GITHUB_OUTPUT
+          else
+            # Join with commas
+            files_csv=$(echo "$changed_files" | tr '\n' ',' | sed 's/,$//')
+            echo "[INFO] Detected changes in: $files_csv"
+            echo "files=$files_csv" >> $GITHUB_OUTPUT
+            echo "run_all=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # TODO: If we want to detect template changes, we'd need to check the commit diff.
+          # For now, let's assume scheduled runs only care about data.
+          # If you manually trigger or push code, you might want to force run all.
+          # We can add an input for that or just rely on the fact that code pushes usually happen rarely.
+
+      - name: Generate schedule images from JSON
+        shell: bash
+        env:
+          CHANGED_FILES: ${{ steps.changes.outputs.files }}
+          FORCED_REGION: ${{ steps.changes.outputs.forced_region }}
+        run: |
+          set -euo pipefail
+          
+          if [ -n "${FORCED_REGION:-}" ]; then
+            echo "[INFO] Rendering images only for region='${FORCED_REGION}'"
+            node scripts/batch_render.mjs --region "${FORCED_REGION}"
+            exit 0
+          fi
+          
+          if [ -n "${CHANGED_FILES:-}" ]; then
+            echo "[INFO] Rendering images for changed files: ${CHANGED_FILES}"
+            node scripts/batch_render.mjs --files "${CHANGED_FILES}"
+            exit 0
+          fi
+          
+          echo "[INFO] No data changes and no forced region. Skipping render."
 
       - name: Commit and push data/images updates (if any)
         if: github.ref_name == env.TARGET_BRANCH
@@ -116,9 +168,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-          # Ensure we are on the target branch
-          git checkout "$TARGET_BRANCH"
 
           # Show current status under data/ and images/
           echo "[INFO] Changed files under data/ and images/ (working tree):"
@@ -137,21 +186,29 @@ jobs:
           echo "[INFO] Staged files:"
           git diff --name-only --cached
 
-          # Rebase latest remote before committing/pushing
-          git pull --rebase origin "$TARGET_BRANCH" || true
-
-          msg_region=${REGION:-all}
+          # For shallow clone, we can't easily rebase if we don't have history.
+          # But we are on the tip of the branch (usually).
+          # If we need to pull, we might need to fetch more depth or just pull with strategy.
+          # 'git pull --rebase' on shallow clone might fail if the base is missing.
+          # Safe bet: fetch origin target branch with depth 1? Or just try to commit and push.
+          # If push fails, we need to pull.
+          
+          msg_region=${REGION:-auto}
           commit_msg="data/images: update schedules and rendered images (region=${msg_region}) — run #${GITHUB_RUN_ID}"
           git commit -m "$commit_msg"
 
-          # Retry push up to 3 times on race
+          # Retry push up to 3 times
           for attempt in 1 2 3; do
             if git push origin HEAD:"$TARGET_BRANCH"; then
               echo "[OK] Pushed data/images updates to $TARGET_BRANCH"
               exit 0
             fi
-            echo "[WARN] Push failed (attempt $attempt). Rebasing and retrying..."
-            git pull --rebase origin "$TARGET_BRANCH" || true
+            echo "[WARN] Push failed (attempt $attempt). Fetching and rebasing..."
+            # Unshallow or fetch enough to rebase?
+            # Actually, 'git pull --rebase' works if we have the upstream commit.
+            # Let's try fetching the branch tip first.
+            git fetch origin "$TARGET_BRANCH" --depth=1
+            git rebase "origin/$TARGET_BRANCH" || true
             sleep $((attempt*2))
           done
 

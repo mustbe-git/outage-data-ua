@@ -32,6 +32,8 @@ const theme = (args.theme === 'dark') ? 'dark' : 'light';
 // Accept explicit --scale; otherwise rely on single renderer's high-DPI default (DPR=4). Support --max passthrough.
 const scale = Number(args.scale || NaN);
 const onlyRegion = args.region || null; // regionId or file stem
+// Support passing a comma-separated list of specific JSON files to process
+const specificFiles = args.files ? args.files.split(',').map(f => f.trim()).filter(Boolean) : null;
 
 const dataDir = path.join(projectRoot, 'data');
 const imagesDir = path.join(projectRoot, 'images');
@@ -89,9 +91,17 @@ async function runParallel(tasks, concurrency) {
   await mkdir(imagesDir, { recursive: true });
 
   const entries = await readdir(dataDir, { withFileTypes: true });
-  const jsonFiles = entries.filter(e => e.isFile() && e.name.endsWith('.json')).map(e => path.join(dataDir, e.name));
+  let jsonFiles = entries.filter(e => e.isFile() && e.name.endsWith('.json')).map(e => path.join(dataDir, e.name));
+
+  if (specificFiles && specificFiles.length > 0) {
+    // Filter the list to only include files that match the basenames or full paths provided
+    const allowed = new Set(specificFiles.map(f => path.basename(f)));
+    jsonFiles = jsonFiles.filter(p => allowed.has(path.basename(p)));
+    console.log(`[INFO] Filtering to ${jsonFiles.length} specific files from --files argument`);
+  }
+
   if (jsonFiles.length === 0) {
-    console.warn('[WARN] No JSON files found in data/');
+    console.warn('[WARN] No JSON files found in data/ (or none matched filter)');
     process.exit(0);
   }
 
