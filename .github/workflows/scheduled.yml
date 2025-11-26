@@ -233,51 +233,49 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "[INFO] Verifying image structure"
+          echo "[INFO] Restructuring image folders..."
           
-          # Each artifact creates a folder like images/images-kyiv/
-          # We need to move contents from images/images-{region}/ to images/{region}/
-          
-          # Create temp directory outside of images/
-          mkdir -p /tmp/images-restructure
+          # Artifacts are downloaded to images/images-{region}/
+          # We need to move the CONTENTS of these folders to images/{region}/
           
           for artifact_dir in images/images-*; do
             if [ -d "$artifact_dir" ]; then
-              # Extract region name from artifact directory name
-              # images/images-kyiv -> kyiv
+              # Extract region name: images/images-kyiv -> kyiv
               region=$(basename "$artifact_dir" | sed 's/^images-//')
               
-              echo "[INFO] Processing region: $region"
-              echo "[INFO] Artifact dir: $artifact_dir"
+              target_dir="images/$region"
+              echo "[INFO] Processing $region..."
+              echo "[INFO] Source: $artifact_dir"
+              echo "[INFO] Target: $target_dir"
               
-              # Move the region folder from artifact to temp, then to final location
-              # The artifact contains: images/images-kyiv/{region}/...
-              # We need to move it to: images/{region}/...
-              if [ -d "$artifact_dir/$region" ]; then
-                # First move to temp outside images/
-                mv "$artifact_dir/$region" "/tmp/images-restructure/$region"
-                # Remove artifact directory
-                rm -rf "$artifact_dir"
-                # Move from temp to final location
-                mv "/tmp/images-restructure/$region" "images/$region"
-                echo "[INFO] Moved $region images to images/$region/"
+              # Create target directory
+              mkdir -p "$target_dir"
+              
+              # Move all files from artifact dir to target dir
+              # We use find to avoid errors if dir is empty (though it shouldn't be)
+              # and to handle hidden files if any
+              
+              # Check if there are files to move
+              if [ "$(ls -A $artifact_dir)" ]; then
+                mv "$artifact_dir"/* "$target_dir"/
+                echo "[INFO] Moved files to $target_dir"
               else
-                echo "[WARN] Expected structure not found in $artifact_dir"
-                ls -la "$artifact_dir" || true
+                echo "[WARN] Artifact directory $artifact_dir is empty"
               fi
+              
+              # Remove the now empty artifact directory
+              rm -rf "$artifact_dir"
             fi
           done
           
-          # Cleanup temp directory
-          rm -rf /tmp/images-restructure
-          
           echo "[INFO] Final image structure:"
           ls -la images/ || true
-          echo "[INFO] Contents of each region folder:"
+          
+          echo "[INFO] Verifying region folders:"
           for region_dir in images/*/; do
             if [ -d "$region_dir" ]; then
-              echo "[INFO] $region_dir:"
-              ls -la "$region_dir" | head -10 || true
+              echo "--- $region_dir ---"
+              ls -la "$region_dir" | head -5 || true
             fi
           done
 
