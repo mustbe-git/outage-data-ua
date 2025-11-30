@@ -1,6 +1,6 @@
 {
   "regionId": "odesa",
-  "lastUpdated": "2025-11-30T07:25:52.814Z",
+  "lastUpdated": "2025-11-30T07:31:01.134Z",
   "fact": {
     "data": {
       "1764453600": {
@@ -223,9 +223,9 @@
           "8": "yes",
           "9": "second",
           "10": "no",
-          "11": "no",
-          "12": "no",
-          "13": "first",
+          "11": "first",
+          "12": "yes",
+          "13": "yes",
           "14": "yes",
           "15": "yes",
           "16": "yes",
@@ -235,7 +235,7 @@
           "20": "no",
           "21": "no",
           "22": "no",
-          "23": "yes",
+          "23": "no",
           "24": "yes"
         },
         "GPV5.2": {
@@ -248,7 +248,7 @@
           "7": "yes",
           "8": "yes",
           "9": "second",
-          "10": "no",
+          "10": "yes",
           "11": "no",
           "12": "no",
           "13": "first",
@@ -287,7 +287,7 @@
           "20": "no",
           "21": "no",
           "22": "no",
-          "23": "no",
+          "23": "yes",
           "24": "yes"
         },
         "GPV6.2": {
@@ -632,7 +632,7 @@
         }
       }
     },
-    "update": "29.11.2025 21:03",
+    "update": "30.11.2025 09:24",
     "today": 1764453600
   },
   "preset": {
@@ -3027,19 +3027,19 @@
         }
       }
     },
-    "updateFact": "29.11.2025 21:03"
+    "updateFact": "30.11.2025 09:24"
   },
   "lastUpdateStatus": {
     "status": "parsed",
     "ok": true,
     "code": 200,
     "message": null,
-    "at": "2025-11-30T07:25:52.814Z",
-    "attempt": 2496
+    "at": "2025-11-30T07:31:01.133Z",
+    "attempt": 2497
   },
   "meta": {
     "schemaVersion": "1.0.0",
-    "contentHash": "2135a30055ff6e73d9936bf7d5a317ce4b00923fb16b472fd9038f617f98721d"
+    "contentHash": "68115a7c7af76e5caa80c658cb5acadb3e7f8b9b913e84a1e4fd39e2adc6d33d"
   },
   "regionAffiliation": "Одеса та обл."
 }
