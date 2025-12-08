@@ -3016,8 +3016,8 @@
     "ok": false,
     "code": 422,
     "message": "Marker `DisconSchedule.fact =` not found in /home/runner/work/outage-data-ua/outage-data-ua/outputs/dnipro.html",
-    "at": "2025-12-08T20:11:03.055Z",
-    "attempt": 4948
+    "at": "2025-12-08T20:16:05.082Z",
+    "attempt": 4949
   },
   "meta": {
     "schemaVersion": "1.0.0",
