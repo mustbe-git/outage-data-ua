@@ -1,6 +1,6 @@
 {
   "regionId": "dnipro",
-  "lastUpdated": "2025-12-15T19:01:04.657Z",
+  "lastUpdated": "2025-12-15T19:06:00.497Z",
   "fact": {
     "data": {
       "1765749600": {
@@ -53,8 +53,8 @@
           "20": "no",
           "21": "no",
           "22": "no",
-          "23": "yes",
-          "24": "yes"
+          "23": "no",
+          "24": "no"
         },
         "GPV2.1": {
           "1": "first",
@@ -329,8 +329,8 @@
           "8": "no",
           "9": "yes",
           "10": "yes",
-          "11": "yes",
-          "12": "yes",
+          "11": "no",
+          "12": "first",
           "13": "yes",
           "14": "yes",
           "15": "yes",
@@ -355,8 +355,8 @@
           "8": "no",
           "9": "yes",
           "10": "yes",
-          "11": "no",
-          "12": "first",
+          "11": "yes",
+          "12": "yes",
           "13": "yes",
           "14": "yes",
           "15": "yes",
@@ -632,7 +632,7 @@
         }
       }
     },
-    "update": "15.12.2025 20:42",
+    "update": "15.12.2025 21:00",
     "today": 1765749600
   },
   "preset": {
@@ -3009,19 +3009,19 @@
         }
       }
     },
-    "updateFact": "15.12.2025 20:42"
+    "updateFact": "15.12.2025 21:00"
   },
   "lastUpdateStatus": {
     "status": "parsed",
     "ok": true,
     "code": 200,
     "message": null,
-    "at": "2025-12-15T19:01:04.657Z",
-    "attempt": 6943
+    "at": "2025-12-15T19:06:00.497Z",
+    "attempt": 6944
   },
   "meta": {
     "schemaVersion": "1.0.0",
-    "contentHash": "a3b8ad047ccf56bffbfb00d2e45011ad3f9f5fbdd23ac1446e8cd045656119a7"
+    "contentHash": "f2aff9ddc4a5488f58d9629cbf57a4ef3594cdb6a768cd96d48fb352eceba5e7"
   },
   "regionAffiliation": "Дніпро та обл."
 }
